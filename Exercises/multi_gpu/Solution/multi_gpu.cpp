@@ -93,9 +93,9 @@ void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
   const int N = x.extent(0);
 
   // Use execution space for deep_copy to correct device
-  Kokkos::deep_copy(exec_space, y, 1.0);
+  // Kokkos::deep_copy(exec_space, y, 1.0);
   // Kokkos::deep_copy(exec_space, x, 1.0);
-  // Kokkos::deep_copy(exec_space, A, 1.0);
+  Kokkos::deep_copy(exec_space, A, 1.0);
 
   // Pass execution space to policy constructor to launch on correct device
   // auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO);
