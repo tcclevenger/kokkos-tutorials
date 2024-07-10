@@ -98,23 +98,23 @@ void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
   Kokkos::deep_copy(exec_space, A, 1.0);
 
   // Pass execution space to policy constructor to launch on correct device
-  auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO);
-  Kokkos::parallel_reduce(
-      "y^TAx", policy,
-      KOKKOS_LAMBDA(const MemberType& team, double& update) {
-        const int j = team.league_rank();
+  // auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO);
+  // Kokkos::parallel_reduce(
+  //     "y^TAx", policy,
+  //     KOKKOS_LAMBDA(const MemberType& team, double& update) {
+  //       const int j = team.league_rank();
 
-        double temp = 0;
-        Kokkos::parallel_reduce(
-            Kokkos::TeamVectorRange(team, N),
-            [&](const int i, double& innerUpdate) {
-              innerUpdate += A(j, i) * x(i);
-            },
-            temp);
+  //       double temp = 0;
+  //       Kokkos::parallel_reduce(
+  //           Kokkos::TeamVectorRange(team, N),
+  //           [&](const int i, double& innerUpdate) {
+  //             innerUpdate += A(j, i) * x(i);
+  //           },
+  //           temp);
 
-        Kokkos::single(Kokkos::PerTeam(team), [&]() { update += y(j) * temp; });
-      },
-      result);
+  //       Kokkos::single(Kokkos::PerTeam(team), [&]() { update += y(j) * temp; });
+  //     },
+  //     result);
 }
 
 int main(int argc, char* argv[]) {
