@@ -15,7 +15,6 @@
 //@HEADER
 
 #include <Kokkos_Core.hpp>
-#include <hip/hip_runtime_api.h>
 
 #if !(defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP))
 #error "This exercise can only be run with Kokkos_ENABLE_CUDA=ON or Kokkos_ENABLE_HIP=ON."
