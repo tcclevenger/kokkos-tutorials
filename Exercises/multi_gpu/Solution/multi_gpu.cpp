@@ -49,7 +49,7 @@ struct StreamsAndDevices {
     cudaGetDeviceCount(&n_devices);
 #endif
 #ifdef KOKKOS_ENABLE_HIP
-    hipGetDeviceCount(&n_devices);
+    auto error = hipGetDeviceCount(&n_devices);
 #endif
 
     // Choose 2 devices for this tutorial
@@ -62,8 +62,8 @@ struct StreamsAndDevices {
       cudaStreamCreate(&streams[i]);
 #endif
 #ifdef KOKKOS_ENABLE_HIP
-      hipSetDevice(devices[i]);
-      hipStreamCreate(&streams[i]);
+      error = hipSetDevice(devices[i]);
+      error = hipStreamCreate(&streams[i]);
 #endif
     }
   }
@@ -76,8 +76,8 @@ struct StreamsAndDevices {
       cudaStreamDestroy(streams[i]);
 #endif
 #ifdef KOKKOS_ENABLE_HIP
-      hipSetDevice(devices[i]);
-      hipStreamDestroy(streams[i]);
+      auto error = hipSetDevice(devices[i]);
+      error = hipStreamDestroy(streams[i]);
 #endif
     }
   }
