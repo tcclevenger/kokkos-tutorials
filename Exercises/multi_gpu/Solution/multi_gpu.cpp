@@ -92,6 +92,8 @@ void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
   // Application: <y, Ax> = y^T*A*x
   const int N = x.extent(0);
 
+  Kokkos::deep_copy(result, 5.0);
+
   // Use execution space for deep_copy to correct device
   Kokkos::deep_copy(exec_space, y, 1.0);
   Kokkos::deep_copy(exec_space, x, 1.0);
