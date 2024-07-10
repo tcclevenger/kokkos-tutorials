@@ -159,12 +159,13 @@ int main(int argc, char* argv[]) {
     ViewVectorType x1(Kokkos::view_alloc("x1", execs[1]), N);
     ViewMatrixType A1(Kokkos::view_alloc("A1", execs[1]), N, N);
 
-    // Timer
-    Kokkos::Timer timer;
-
     // Allocate result views for use on different devices
     ResultType result0(Kokkos::view_alloc("result0", execs[0]));
     ResultType result1(Kokkos::view_alloc("result1", execs[1]));
+
+    // Timer
+    Kokkos::Timer timer;
+
     for (int repeat = 0; repeat < nrepeat; repeat++) {
       // Pass execution space instances for deep copying and launching
       // kernels on different devices
