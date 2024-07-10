@@ -101,7 +101,7 @@ void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
   exec_space.fence();
 
   // Pass execution space to policy constructor to launch on correct device
-  auto policy = TeamPolicy(exec_space, N);
+  auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO);
   Kokkos::parallel_reduce(
       "y^TAx", policy,
       KOKKOS_LAMBDA(const MemberType& team, double& update) {
