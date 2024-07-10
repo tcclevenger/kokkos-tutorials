@@ -53,7 +53,7 @@ struct StreamsAndDevices {
 #endif
 
     // Choose 2 devices for this tutorial
-    devices = {0, n_devices - 1};
+    devices = {1,0}; //{0, n_devices - 1};
 
     for (auto i = 0; i < devices.size(); ++i) {
       // For each device, set device in API and create stream
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
     for (int repeat = 0; repeat < nrepeat; repeat++) {
       // Pass execution space instances for deep copying and launching
       // kernels on different devices
-      //operation(execs[0], result0, A0, y0, x0);
+      operation(execs[0], result0, A0, y0, x0);
       operation(execs[1], result1, A1, y1, x1);
 
       // Get results on host
