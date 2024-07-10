@@ -115,6 +115,7 @@ void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
         Kokkos::single(Kokkos::PerTeam(team), [&]() { update += y(j) * temp; });
       },
       result);
+  exec_space.fence();
 }
 
 int main(int argc, char* argv[]) {
