@@ -94,11 +94,14 @@ void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
 
   // Use execution space for deep_copy to correct device
   Kokkos::deep_copy(exec_space, y, 1.0);
+  exec_space.fence();
   Kokkos::deep_copy(exec_space, x, 1.0);
+  exec_space.fence();
   Kokkos::deep_copy(exec_space, A, 1.0);
+  exec_space.fence();
 
   // Pass execution space to policy constructor to launch on correct device
-  auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO, 32);
+  auto policy = TeamPolicy(exec_space, N);
   Kokkos::parallel_reduce(
       "y^TAx", policy,
       KOKKOS_LAMBDA(const MemberType& team, double& update) {
