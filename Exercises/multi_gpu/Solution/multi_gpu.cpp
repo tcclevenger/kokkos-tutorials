@@ -74,6 +74,7 @@ struct StreamsAndDevices {
 #ifdef KOKKOS_ENABLE_CUDA
       cudaSetDevice(devices[i]);
       cudaStreamDestroy(streams[i]);
+#endif
 #ifdef KOKKOS_ENABLE_HIP
       hipSetDevice(devices[i]);
       hipStreamDestroy(streams[i]);
