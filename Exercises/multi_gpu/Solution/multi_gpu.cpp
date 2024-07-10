@@ -15,6 +15,7 @@
 //@HEADER
 
 #include <Kokkos_Core.hpp>
+#include <hip/hip_runtime_api.h>
 
 #if !(defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP))
 #error "This exercise can only be run with Kokkos_ENABLE_CUDA=ON or Kokkos_ENABLE_HIP=ON."
@@ -147,8 +148,10 @@ int main(int argc, char* argv[]) {
     // they are destroyed before the cuda/hip streams themselves are destroyed.
 
     // Use streams to construct execution space on different devices.
-    std::array<ExecSpace, 2> execs = {ExecSpace(streams_and_devices.streams[0]),
-                                      ExecSpace(streams_and_devices.streams[1])};
+    std::array<ExecSpace, 2> execs = {ExecSpace(streams_and_devices.devices[0],
+                                                streams_and_devices.streams[0]),
+                                      ExecSpace(streams_and_devices.devices[1],
+                                                streams_and_devices.streams[1])};
 
     // Allocate views for use on different devices
     ViewVectorType y0(Kokkos::view_alloc("y0", execs[0]), N);
