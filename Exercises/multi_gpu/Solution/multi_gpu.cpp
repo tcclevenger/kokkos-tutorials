@@ -172,10 +172,8 @@ int main(int argc, char* argv[]) {
       operation(execs[1], result1, A1, y1, x1);
 
       // Get results on host
-      auto result0_h =
-          Kokkos::create_mirror_view_and_copy(HostSpace(), result0);
-      auto result1_h =
-          Kokkos::create_mirror_view_and_copy(HostSpace(), result1);
+      auto result0_h = Kokkos::create_mirror_view(result0);
+      auto result1_h = Kokkos::create_mirror_view(result1);
 
       // Check results
       const double solution = (double)N * (double)N;
@@ -190,7 +188,7 @@ int main(int argc, char* argv[]) {
 
       // Output results
       if (repeat == (nrepeat - 1)) {
-        //Kokkos::fence();
+        Kokkos::fence();
         printf("  Computed results for N=%d and nrepeat=%d are %e and %e\n",
                 N, nrepeat, result0_h(), result1_h());
       }
