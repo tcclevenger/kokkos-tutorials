@@ -25,7 +25,7 @@ using StreamType = cudaStream_t;
 #endif
 #ifdef KOKKOS_ENABLE_HIP
 using StreamType = hipStream_t;
-#endif 
+#endif
 
 using HostSpace      = Kokkos::HostSpace;
 using ExecSpace      = Kokkos::DefaultExecutionSpace;
@@ -45,9 +45,10 @@ struct StreamsAndDevices {
   StreamsAndDevices() {
     // Query number of devices available
     int n_devices;
-#if defined(KOKKOS_ENABLE_CUDA)
+#ifdef KOKKOS_ENABLE_CUDA
     cudaGetDeviceCount(&n_devices);
-#elif defined(KOKKOS_ENABLE_HIP)
+#endif
+#ifdef KOKKOS_ENABLE_HIP
     hipGetDeviceCount(&n_devices);
 #endif
 
@@ -55,17 +56,13 @@ struct StreamsAndDevices {
     devices = {0, n_devices - 1};
 
     for (auto i = 0; i < devices.size(); ++i) {
-      // Set device for API calls
-#if defined(KOKKOS_ENABLE_CUDA)
+      // For each device, set device in API and create stream
+#ifdef KOKKOS_ENABLE_CUDA
       cudaSetDevice(devices[i]);
-#elif defined(KOKKOS_ENABLE_HIP)
-      hipSetDevice(devices[i]);
-#endif
-
-      // Create stream
-#if defined(KOKKOS_ENABLE_CUDA)
       cudaStreamCreate(&streams[i]);
-#elif defined(KOKKOS_ENABLE_HIP)
+#endif
+#ifdef KOKKOS_ENABLE_HIP
+      hipSetDevice(devices[i]);
       hipStreamCreate(&streams[i]);
 #endif
     }
@@ -73,17 +70,12 @@ struct StreamsAndDevices {
 
   ~StreamsAndDevices() {
     for (auto i = 0; i < devices.size(); ++i) {
-      // Set device for API calls
-#if defined(KOKKOS_ENABLE_CUDA)
+      // For each device, set device in API and destroy stream
+#ifdef KOKKOS_ENABLE_CUDA
       cudaSetDevice(devices[i]);
-#elif defined(KOKKOS_ENABLE_HIP)
-      hipSetDevice(devices[i]);
-#endif
-
-      // Destroy stream
-#if defined(KOKKOS_ENABLE_CUDA)
       cudaStreamDestroy(streams[i]);
-#elif defined(KOKKOS_ENABLE_HIP)
+#ifdef KOKKOS_ENABLE_HIP
+      hipSetDevice(devices[i]);
       hipStreamDestroy(streams[i]);
 #endif
     }
