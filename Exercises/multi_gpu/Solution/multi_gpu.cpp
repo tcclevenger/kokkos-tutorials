@@ -189,8 +189,8 @@ int main(int argc, char* argv[]) {
       // Output results
       if (repeat == (nrepeat - 1)) {
         Kokkos::fence();
-        printf("  Computed results for N=%d and nrepeat=%d are %e and %e\n",
-                N, nrepeat, result0_h(), result1_h());
+        // printf("  Computed results for N=%d and nrepeat=%d are %e and %e\n",
+        //         N, nrepeat, result0_h(), result1_h());
       }
     }
 
