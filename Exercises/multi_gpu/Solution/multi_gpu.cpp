@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
       operation(execs[0], result0, A0, y0, x0);
       operation(execs[1], result1, A1, y1, x1);
 
-      // Get results on host
+      // // Get results on host
       // auto result0_h =
       //     Kokkos::create_mirror_view_and_copy(HostSpace(), result0);
       // auto result1_h =
@@ -195,6 +195,7 @@ int main(int argc, char* argv[]) {
       //           N, nrepeat, result0_h(), result1_h());
       // }
     }
+    Kokkos::fence();
 
     // Calculate time.
     double time = timer.seconds();
