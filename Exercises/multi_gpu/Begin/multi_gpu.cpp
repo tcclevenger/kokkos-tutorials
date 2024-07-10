@@ -19,9 +19,17 @@
 
 #include <Kokkos_Core.hpp>
 
-#ifndef KOKKOS_ENABLE_CUDA
-#error "This exercise can only be run with Kokkos_ENABLE_CUDA=ON"
+
+#if !(defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP))
+#error "This exercise can only be run with Kokkos_ENABLE_CUDA=ON or Kokkos_ENABLE_HIP=ON."
 #else
+
+#ifdef KOKKOS_ENABLE_CUDA
+using StreamType = cudaStream_t;
+#endif
+#ifdef KOKKOS_ENABLE_HIP
+using StreamType = hipStream_t;
+#endif 
 
 using ExecSpace      = Kokkos::DefaultExecutionSpace;
 using TeamPolicy     = Kokkos::TeamPolicy<ExecSpace>;
@@ -32,27 +40,27 @@ using ViewMatrixType = Kokkos::View<double**>;
 // EXERCISE: choose a ResultType for parallel_reduce() that will not fence
 using ResultType = double;
 
-struct CudaStreams {
+struct StreamsAndDevices {
   std::array<int, 2> devices;
-  std::array<cudaStream_t, 2> streams;
+  std::array<StreamType, 2> streams;
 
-  CudaStreams() {
+  StreamsAndDevices() {
     // EXERCISE: query total number of devices available and choose 2: devices = {devid0, devid1}
-    //             - Use cudaGetDeviceCount()
+    //             - Use {cuda|hip}GetDeviceCount()
     // EXERCISE: create a stream on each chosen device
-    //             - Use cudaSetDevice() to direct Cuda API to use particular device
-    //             - Create stream using cudaStreamCreate()
+    //             - Use {cuda|hip}SetDevice() to direct Cuda/HIP API to use particular device
+    //             - Create stream using {cuda|hip}StreamCreate()
   }
 
-  ~CudaStreams() {
+  ~StreamsAndDevices() {
     // EXERCISE: for each stream, destroy on the correct device
-    //             - Use cudaSetDevice() to direct Cuda API to use particular device
-    //             - Destroy stream using cudaStreamDestroy()
+    //             - Use {cuda|hip}SetDevice() to direct Cuda/HIP API to use particular device
+    //             - Destroy stream using {cuda|hip}StreamDestroy()
   }
 
   // Removing the following ensure that we manage the lifetime of the streams
-  CudaStreams(const CudaStreams &) = delete;
-  CudaStreams &operator=(const CudaStreams &) = delete;
+  StreamsAndDevices(const StreamsAndDevices &) = delete;
+  StreamsAndDevices &operator=(const StreamsAndDevices &) = delete;
 };
 
 // EXERCISE: pass in an execution space instance
@@ -105,11 +113,11 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // EXERCISE: create a CudaStreams object
+  // EXERCISE: create a StreamsAndDevices object
 
   Kokkos::initialize(argc, argv);
   {
-    // EXERCISE: create execution space instances using the streams in CudaStreams
+    // EXERCISE: create execution space instances using the streams in StreamsAndDevices
 
     // EXERCISE: allocate on device 0
     ViewVectorType y0("y0", N);

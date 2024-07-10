@@ -16,9 +16,16 @@
 
 #include <Kokkos_Core.hpp>
 
-#ifndef KOKKOS_ENABLE_CUDA
-#error "This exercise can only be run with Kokkos_ENABLE_CUDA=ON"
+#if !(defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP))
+#error "This exercise can only be run with Kokkos_ENABLE_CUDA=ON or Kokkos_ENABLE_HIP=ON."
 #else
+
+#ifdef KOKKOS_ENABLE_CUDA
+using StreamType = cudaStream_t;
+#endif
+#ifdef KOKKOS_ENABLE_HIP
+using StreamType = hipStream_t;
+#endif 
 
 using HostSpace      = Kokkos::HostSpace;
 using ExecSpace      = Kokkos::DefaultExecutionSpace;
@@ -31,40 +38,60 @@ using ViewMatrixType = Kokkos::View<double**>;
 // execution spaces. Without this the kernels will run serially.
 using ResultType = Kokkos::View<double>;
 
-struct CudaStreams {
+struct StreamsAndDevices {
   std::array<int, 2> devices;
-  std::array<cudaStream_t, 2> streams;
+  std::array<StreamType, 2> streams;
 
-  CudaStreams() {
+  StreamsAndDevices() {
     // Query number of devices available
     int n_devices;
+#if defined(KOKKOS_ENABLE_CUDA)
     cudaGetDeviceCount(&n_devices);
+#elif defined(KOKKOS_ENABLE_HIP)
+    hipGetDeviceCount(&n_devices);
+#endif
 
     // Choose 2 devices for this tutorial
     devices = {0, n_devices - 1};
 
     for (auto i = 0; i < devices.size(); ++i) {
-      // Set device for Cuda API calls
+      // Set device for API calls
+#if defined(KOKKOS_ENABLE_CUDA)
       cudaSetDevice(devices[i]);
+#elif defined(KOKKOS_ENABLE_HIP)
+      hipSetDevice(devices[i]);
+#endif
 
-      // Create Cuda stream
+      // Create stream
+#if defined(KOKKOS_ENABLE_CUDA)
       cudaStreamCreate(&streams[i]);
+#elif defined(KOKKOS_ENABLE_HIP)
+      hipStreamCreate(&streams[i]);
+#endif
     }
   }
 
-  ~CudaStreams() {
+  ~StreamsAndDevices() {
     for (auto i = 0; i < devices.size(); ++i) {
-      // Set device for Cuda API calls
+      // Set device for API calls
+#if defined(KOKKOS_ENABLE_CUDA)
       cudaSetDevice(devices[i]);
+#elif defined(KOKKOS_ENABLE_HIP)
+      hipSetDevice(devices[i]);
+#endif
 
-      // Destroy Cuda stream
+      // Destroy stream
+#if defined(KOKKOS_ENABLE_CUDA)
       cudaStreamDestroy(streams[i]);
+#elif defined(KOKKOS_ENABLE_HIP)
+      hipStreamDestroy(streams[i]);
+#endif
     }
   }
 
   // Removing the following ensure that we manage the lifetime of the streams
-  CudaStreams(const CudaStreams &) = delete;
-  CudaStreams &operator=(const CudaStreams &) = delete;
+  StreamsAndDevices(const StreamsAndDevices &) = delete;
+  StreamsAndDevices &operator=(const StreamsAndDevices &) = delete;
 };
 
 void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
@@ -116,17 +143,17 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  // Create Cuda streams
-  CudaStreams cuda_streams;
+  // Create Cuda/HIP streams
+  StreamsAndDevices streams_and_devices;
 
   Kokkos::initialize(argc, argv);
   {
     // We scope the creation of all execution spaces and views to ensure
-    // they are destroyed before the cuda streams themselves are destroyed.
+    // they are destroyed before the cuda/hip streams themselves are destroyed.
 
     // Use streams to construct execution space on different devices.
-    std::array<ExecSpace, 2> execs = {ExecSpace(cuda_streams.streams[0]),
-                                      ExecSpace(cuda_streams.streams[1])};
+    std::array<ExecSpace, 2> execs = {ExecSpace(streams_and_devices.streams[0]),
+                                      ExecSpace(streams_and_devices.streams[1])};
 
     // Allocate views for use on different devices
     ViewVectorType y0(Kokkos::view_alloc("y0", execs[0]), N);
