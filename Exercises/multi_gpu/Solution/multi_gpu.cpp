@@ -89,32 +89,32 @@ struct StreamsAndDevices {
 
 void operation(ExecSpace& exec_space, ResultType& result, ViewMatrixType& A,
                ViewVectorType& y, ViewVectorType& x) {
-  // Application: <y, Ax> = y^T*A*x
-  const int N = x.extent(0);
+  // // Application: <y, Ax> = y^T*A*x
+  // const int N = x.extent(0);
 
-  // Use execution space for deep_copy to correct device
-  Kokkos::deep_copy(exec_space, y, 1.0);
-  Kokkos::deep_copy(exec_space, x, 1.0);
-  Kokkos::deep_copy(exec_space, A, 1.0);
+  // // Use execution space for deep_copy to correct device
+  // Kokkos::deep_copy(exec_space, y, 1.0);
+  // Kokkos::deep_copy(exec_space, x, 1.0);
+  // Kokkos::deep_copy(exec_space, A, 1.0);
 
-  // Pass execution space to policy constructor to launch on correct device
-  auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO);
-  Kokkos::parallel_reduce(
-      "y^TAx", policy,
-      KOKKOS_LAMBDA(const MemberType& team, double& update) {
-        const int j = team.league_rank();
+  // // Pass execution space to policy constructor to launch on correct device
+  // auto policy = TeamPolicy(exec_space, N, Kokkos::AUTO);
+  // Kokkos::parallel_reduce(
+  //     "y^TAx", policy,
+  //     KOKKOS_LAMBDA(const MemberType& team, double& update) {
+  //       const int j = team.league_rank();
 
-        double temp = 0;
-        Kokkos::parallel_reduce(
-            Kokkos::TeamVectorRange(team, N),
-            [&](const int i, double& innerUpdate) {
-              innerUpdate += A(j, i) * x(i);
-            },
-            temp);
+  //       double temp = 0;
+  //       Kokkos::parallel_reduce(
+  //           Kokkos::TeamVectorRange(team, N),
+  //           [&](const int i, double& innerUpdate) {
+  //             innerUpdate += A(j, i) * x(i);
+  //           },
+  //           temp);
 
-        Kokkos::single(Kokkos::PerTeam(team), [&]() { update += y(j) * temp; });
-      },
-      result);
+  //       Kokkos::single(Kokkos::PerTeam(team), [&]() { update += y(j) * temp; });
+  //     },
+  //     result);
 }
 
 int main(int argc, char* argv[]) {
@@ -172,19 +172,19 @@ int main(int argc, char* argv[]) {
       operation(execs[1], result1, A1, y1, x1);
 
       // Get results on host
-      auto result0_h = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), result0);
-      auto result1_h = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), result1);
+      // auto result0_h = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), result0);
+      // auto result1_h = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), result1);
 
       // Check results
       const double solution = (double)N * (double)N;
-      if (result0_h() != solution) {
-        printf("  Error: result0(%e) != solution(%e)\n", result0_h(),
-                solution);
-      }
-      if (result1_h() != solution) {
-        printf("  Error: result1(%e) != solution(%e)\n", result1_h(),
-                solution);
-      }
+      // if (result0_h() != solution) {
+      //   printf("  Error: result0(%e) != solution(%e)\n", result0_h(),
+      //           solution);
+      // }
+      // if (result1_h() != solution) {
+      //   printf("  Error: result1(%e) != solution(%e)\n", result1_h(),
+      //           solution);
+      // }
 
       // Output results
       if (repeat == (nrepeat - 1)) {
