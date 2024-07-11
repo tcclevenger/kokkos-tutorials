@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
       auto result0_h = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), result0);
       auto result1_h = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), result1);
 
-      Check results
+      // Check results
       const double solution = (double)N * (double)N;
       if (result0_h() != solution) {
         printf("  Error: result0(%e) != solution(%e)\n", result0_h(),
