@@ -29,7 +29,7 @@ using StreamType = cudaStream_t;
 #endif
 #ifdef KOKKOS_ENABLE_HIP
 using StreamType = hipStream_t;
-#endif 
+#endif
 
 using ExecSpace      = Kokkos::DefaultExecutionSpace;
 using TeamPolicy     = Kokkos::TeamPolicy<ExecSpace>;
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
     double Gbytes = 2.0e-9 * double(sizeof(double) * (4. * N + 2. * N * N));
 
     // Print results (problem size, time and bandwidth in GB/s).
-    printf("  N( %ld ) nrepeat ( %d ) problem( %g MB ) time( %g s ) bandwidth( %g GB/s )\n",
+    printf("  N( %d ) nrepeat ( %d ) problem( %g MB ) time( %g s ) bandwidth( %g GB/s )\n",
             N, nrepeat, 1.e-6 * (2 * N * N + 4 * N) * sizeof(double), time,
             Gbytes * nrepeat / time);
   }
